@@ -36,7 +36,11 @@ def diffChunks(root):
 	filesB=os.listdir(root+"/B/")
 	filesA.sort()
 	filesB.sort()
-	global dl
+	substract=[]
+	currentA=None
+	currentB=None
+	lastPos=0
+	newPos=0
 	#Do we quit if we have different image sizes?
 	for i in filesB:
 		if not i in filesA:
@@ -46,28 +50,22 @@ def diffChunks(root):
 			print "%s appears in %s, but not in %s"%(i, root+"/A",root+"/B")
 		dl=diffList(root+"/A/"+i,root+"/B/"+i)
 		if len(dl)>0: print i,dl
-
-def subtract():
-	""" Return a list wit all items from l1 not in l2 """
-	global dl
-	substract=[]
-	currentA=None
-	currentB=None
-	lastPos=0
-	for i in dl:
+		for i in dl:
 		if currentA==None or lastPos!=i[0]-1:
 			lastPos=i[0]
 			currentA=i[1]
 			currentB=i[2]
-			substract+(currentA,currentB,lastPos)
+			newPos+=1
+			substract+(newPos,currentA,currentB)
 			
 		else:
 			currentA+=i[1]
 			currentB+=i[2]
 			lastPos=i[0]
-			substract+(currentA,currentB,lastPos)		
+			newPos+=1
+			substract+(newPos,currentA,currentB)		
 	
-	return substract
+	print substract
 def dumpSnippets(filename, diffs):
 	""" Returns a list of strings, extracted from filneame at positions in the list diffs, in theorder given in diffs """
 	#open a file: f=open("dfdff","rb")
@@ -88,4 +86,3 @@ if __name__=="__main__":
 	#for i in diffList(loc+"/A/aa",loc+"/B/aa"):
 	#	print i
 	diffChunks(loc)
-	print subtract()
