@@ -64,7 +64,8 @@ def diffChunks(root):
 			lastPos=i[0]
 			newPos+=1
 			substract+(newPos,currentA,currentB)		
-	
+#	print map(" ".join, zip(list_a, list_b))
+# ['john walker', 'peter smith', 'paul anderson']
 	print substract
 def dumpSnippets(filename, diffs):
 	""" Returns a list of strings, extracted from filneame at positions in the list diffs, in theorder given in diffs """
