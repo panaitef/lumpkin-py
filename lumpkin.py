@@ -38,9 +38,13 @@ def diffChunks(root):
 	filesB.sort()
 	substract=[]
 	currentA=None
+	currentAlist=[]
 	currentB=None
+	currentBlist=[]
 	lastPos=0
-	newPos=0
+	lastPoslist=[]
+	listc=[]
+	listd=[]
 	#Do we quit if we have different image sizes?
 	for i in filesB:
 		if not i in filesA:
@@ -51,22 +55,34 @@ def diffChunks(root):
 		dl=diffList(root+"/A/"+i,root+"/B/"+i)
 		if len(dl)>0: print i,dl
 		for i in dl:
-		if currentA==None or lastPos!=i[0]-1:
-			lastPos=i[0]
-			currentA=i[1]
-			currentB=i[2]
-			newPos+=1
-			substract+(newPos,currentA,currentB)
-			
-		else:
-			currentA+=i[1]
-			currentB+=i[2]
-			lastPos=i[0]
-			newPos+=1
-			substract+(newPos,currentA,currentB)		
-#	print map(" ".join, zip(list_a, list_b))
-# ['john walker', 'peter smith', 'paul anderson']
-	print substract
+			if currentA==None:
+				lastPos=i[0]-1
+				currentA=i[1]
+				currentB=i[2]
+			if lastPos==i[0]-1:
+				currentA=i[1]
+				currentB=i[2]
+				lastPos=i[0]
+				lastPoslist.append(lastPos)
+				currentAlist.append(currentA)
+				currentBlist.append(currentB)
+				lista=[' '.join(map(str, currentAlist))]
+				listb=[' '.join(map(str, currentBlist))]
+			else:
+				lastPos+=i[0]
+				currentA=i[1]
+				currentB=i[2]
+				substract.append((lastPos,currentA,currentB))
+	
+	listc.append((lastPoslist,lista,listb))
+	with open("Lumpkin", 'w') as file:
+   		for item in listc:
+        		file.write("{}\n".format(item))
+	with open("Lumpkin2", 'w') as file:
+   		for item in substract:
+        		file.write("{}\n".format(item))
+	return listc
+	
 def dumpSnippets(filename, diffs):
 	""" Returns a list of strings, extracted from filneame at positions in the list diffs, in theorder given in diffs """
 	#open a file: f=open("dfdff","rb")
@@ -86,4 +102,4 @@ if __name__=="__main__":
 	loc= setupChunking(sys.argv[1],sys.argv[2],sys.argv[3])
 	#for i in diffList(loc+"/A/aa",loc+"/B/aa"):
 	#	print i
-	diffChunks(loc)
+	print diffChunks(loc)
