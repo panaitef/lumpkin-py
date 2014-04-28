@@ -6,7 +6,7 @@ def debug(output):
 	if True:
 		print output
 def setupChunking(file1,file2, chunkSize):
-	""" Given two vmdk files, create two temp folders, and chunk the vmdks into them, return the folder names """
+	""" Given two files creates two temporary folders and splits the files into that location """
 	
 	debug("Chunking %s and %s into chunks of size %s"%(file1,file2,chunkSize))
 	loc=tempfile.mkdtemp(prefix="lumpkin")
@@ -32,6 +32,7 @@ def diffList(file1, file2):
 	return difflist
 
 def diffChunks(root):
+	""" Returns and stores  two lists of consecutive and non-consecutive differences """
 	filesA=os.listdir(root+"/A/")
 	filesB=os.listdir(root+"/B/")
 	filesA.sort()
@@ -42,10 +43,11 @@ def diffChunks(root):
 	currentB=None
 	currentBlist=[]
 	lastPos=0
+	altPos=0
 	lastPoslist=[]
 	listc=[]
 	listd=[]
-	#Do we quit if we have different image sizes?
+	
 	for i in filesB:
 		if not i in filesA:
 			print "%s appears in %s, but not in %s"%(i, root+"/B",root+"/A")
@@ -63,26 +65,32 @@ def diffChunks(root):
 				currentA=i[1]
 				currentB=i[2]
 				lastPos=i[0]
+				altPos+=i[0]
 				lastPoslist.append(lastPos)
 				currentAlist.append(currentA)
 				currentBlist.append(currentB)
 				lista=[' '.join(map(str, currentAlist))]
 				listb=[' '.join(map(str, currentBlist))]
 			else:
-				lastPos+=i[0]
+				lastPos=i[0]
+				altPos=i[0]
 				currentA=i[1]
 				currentB=i[2]
-				substract.append((lastPos,currentA,currentB))
+				substract.append((altPos,currentA,currentB))
+			
 	
 	listc.append((lastPoslist,lista,listb))
-	with open("Lumpkin", 'w') as file:
+	with open("ConsecutiveDiffs", 'w') as file:
    		for item in listc:
         		file.write("{}\n".format(item))
-	with open("Lumpkin2", 'w') as file:
+	with open("RandomDiffs", 'w') as file:
    		for item in substract:
         		file.write("{}\n".format(item))
-	return listc
-	
+	print "ConsecutiveDiffs"
+	print listc
+	print "/n RandomDiffs"
+	print substract
+
 def dumpSnippets(filename, diffs):
 	""" Returns a list of strings, extracted from filneame at positions in the list diffs, in theorder given in diffs """
 	#open a file: f=open("dfdff","rb")
@@ -93,13 +101,14 @@ def dumpSnippets(filename, diffs):
 
 
 if __name__=="__main__":
+	print " Copyright (C)  2014 Florina-Alina Panaite.\n Permission is granted to copy, distribute and/or modify this document \n under the terms of the GNU Free Documentation License, Version 1.3\n or any later version published by the Free Software Foundation;\n with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.\n A copy of the license is included in the section entitled GNU Free Documentation License."
 	print "Lumpkin is starting"
 	print sys.argv
 	if len(sys.argv) != 4:
-		print "Usage...."
+		print "Usage of too many options\n lumpkin.py 'file1' 'file2' 'chunksize'"
 		sys.exit(1)
 
 	loc= setupChunking(sys.argv[1],sys.argv[2],sys.argv[3])
 	#for i in diffList(loc+"/A/aa",loc+"/B/aa"):
 	#	print i
-	print diffChunks(loc)
+	diffChunks(loc)
